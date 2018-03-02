@@ -1,7 +1,7 @@
 module SimplyAuth
   module ControllerHelpers
     def current_session
-      SimplyAuth::Session.find(session[:simply_auth_session_id]) if session[:simply_auth_session_id]
+      Thread.current[:simply_auth_session] ||= find_session
     end
 
     def user_logged_in?
@@ -16,8 +16,16 @@ module SimplyAuth
       if user_logged_in?
         true
       else
-        redirect_to new_session_path
+        redirect_to simply_auth.new_session_path
         false
+      end
+    end
+
+    def find_session
+      begin
+        SimplyAuth::Session.find(session[:simply_auth_session_id]) if session[:simply_auth_session_id]
+      rescue RestClient::NotFound
+        nil
       end
     end
   end

@@ -3,9 +3,13 @@ module SimplyAuth
     attr_accessor :name, :email, :password, :user_pool_id
     validates :name, presence: true
     validates :email, format: /[^@]+@[^@]+/
-    validates :password, length: 6..72
+    validates :password, length: 6..72, if: :password
     def attributes
       super.merge(name: name, email: email, password: password)
+    end
+
+    def owner_id
+      self.user_pool_id
     end
 
     def self.owner_class_name

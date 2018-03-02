@@ -5,6 +5,19 @@ module SimplyAuth
     include ActiveModel::Conversion
     attr_accessor :id
 
+    def initialize(*args)
+      super(*args)
+      @persisted = false
+    end
+
+    def persisted?
+      @persisted
+    end
+
+    def persisted=(val)
+      @persisted = val
+    end
+
     def data
       @data ||= OpenStruct.new
     end
@@ -20,24 +33,36 @@ module SimplyAuth
     end
 
     def attributes
-      {id: id, data: data}
+      {id: id, data: data.to_h}
     end
 
     def save
       if valid?
+        Rails.logger.error([
+          persisted? ? :patch : :post,
+          "https://api.simplyauth.com#{persisted? ? instance_path : collection_path}",
+          attributes.to_json,
+          {accept: :json,
+          content_type: :json}
+        ].inspect)
         response = RestClient.send(
           persisted? ? :patch : :post,
-          "https://api.simplyauth.com#{instance_path}",
+          "https://api.simplyauth.com#{persisted? ? instance_path : collection_path}",
           attributes.to_json,
           accept: :json,
           content_type: :json
         )
+        Rails.logger.error("3")
         body = JSON.parse(response.body)
         body = body.deep_transform_keys { |key| key.to_s.underscore }
+        Rails.logger.error("4")
         self.attributes = body
         changes_applied
+        self.persisted = true
+        Rails.logger.error("5")
         true
       else
+        Rails.logger.error("6")
         false
       end
     end
@@ -57,6 +82,10 @@ module SimplyAuth
       nil
     end
 
+    def owner_id
+      nil
+    end
+
     def self.collection_path(owner_ids = [])
       ids = [ids].flatten
       if self.owner_class
@@ -66,16 +95,28 @@ module SimplyAuth
       end
     end
 
+    def collection_path
+      if owner_id
+        self.class.collection_path(owner_id)
+      else
+        self.class.collection_path
+      end
+    end
+
     def instance_path
-      self.class.instance_path(id)
+      if owner_id
+        self.class.instance_path([owner_id, id])
+      else
+        self.class.instance_path(id)
+      end
     end
 
     def self.instance_path(ids = [])
       ids = [ids].flatten
       if self.owner_class
-        "#{self.owner_class.instance_path(ids.first(ids.length - 1))}/#{path_component}/#{ids.last}"
+        "#{self.owner_class.instance_path(ids.first(ids.length - 1))}/#{path_component}/#{ERB::Util.url_encode(ids.last)}"
       else
-        "/#{path_component}/#{ids.last}"
+        "/#{path_component}/#{ERB::Util.url_encode(ids.last)}"
       end
     end
 
@@ -86,7 +127,15 @@ module SimplyAuth
       )
       body = JSON.parse(response.body)
       body = body.deep_transform_keys { |key| key.to_s.underscore }
-      new(body)
+      new(body).tap do |r|
+        r.persisted = true
+      end
+    end
+
+    def self.create(attributes={})
+      r = new(attributes)
+      r.save()
+      r
     end
   end
 end

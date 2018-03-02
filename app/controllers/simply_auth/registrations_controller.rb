@@ -4,19 +4,17 @@ module SimplyAuth
       @user = SimplyAuth::User.new
     end
 
+    def after_registration(user); end
+
     def create
       @user = SimplyAuth::User.new(user_params)
       if @user.save
-        # account_name = @user.data.company_name
-        # account_name = @user.name if account_name.blank?
-        # account = Account.create(name: account_name)
-        # @user.data.account_id = account.id
-        # @user.save
+        after_registration(@user)
 
         @session = SimplyAuth::Session.new(email: user_params[:email], password: user_params[:password])
         @session.save
         session[:simply_auth_session_id] = @session.id
-        redirect_to :root
+        redirect_to "/"
       else
         render :new
       end
@@ -25,7 +23,7 @@ module SimplyAuth
     private
 
     def user_params
-      params.require(:simply_auth_user).permit(:name, :email, :password, data: params[:simply_auth_user][:data].keys)
+      params.require(:user).permit(:name, :email, :password, data: params[:user][:data].try(:keys))
     end
   end
 end

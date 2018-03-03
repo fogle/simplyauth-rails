@@ -1,9 +1,13 @@
 module SimplyAuth
   class User < Model
     attr_accessor :name, :email, :password, :user_pool_id
-    validates :name, presence: true
     validates :email, format: /[^@]+@[^@]+/
-    validates :password, length: 6..72, if: :password
+    validates :password, length: 6..72, if: :password_or_new_record?
+
+    def password_or_new_record?
+      password || !persisted?
+    end
+
     def attributes
       super.merge(name: name, email: email, password: password)
     end
@@ -21,7 +25,7 @@ module SimplyAuth
         "https://api.simplyauth.com#{collection_path(ids)}",
         accept: :json
       )
-      body = JSON.parse(response.body)
+      body = JSON.parse(response.body)[model_name.element.pluralize.camelize(:lower)]
       body.map do |data|
         data = data.deep_transform_keys { |key| key.to_s.underscore }
         new(data)

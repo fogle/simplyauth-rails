@@ -1,3 +1,5 @@
+require 'rest-client'
+
 module SimplyAuth
   class Model
     include ActiveModel::Model
@@ -38,38 +40,36 @@ module SimplyAuth
 
     def save
       if valid?
-        Rails.logger.error([
-          persisted? ? :patch : :post,
-          "https://api.simplyauth.com#{persisted? ? instance_path : collection_path}",
-          attributes.to_json,
-          {accept: :json,
-          content_type: :json}
-        ].inspect)
+        # Rails.logger.error([
+        #   persisted? ? :patch : :post,
+        #   "https://api.simplyauth.com#{persisted? ? instance_path : collection_path}",
+        #   {model_name.element.camelize(:lower) => attributes}.to_json,
+        #   {accept: :json,
+        #   content_type: :json}
+        # ].inspect)
         response = RestClient.send(
           persisted? ? :patch : :post,
           "https://api.simplyauth.com#{persisted? ? instance_path : collection_path}",
-          attributes.to_json,
+          {model_name.element.camelize(:lower) => attributes}.to_json,
           accept: :json,
           content_type: :json
         )
-        Rails.logger.error("3")
-        body = JSON.parse(response.body)
+        body = JSON.parse(response.body)[model_name.element.camelize(:lower)]
         body = body.deep_transform_keys { |key| key.to_s.underscore }
-        Rails.logger.error("4")
-        self.attributes = body
+        self.attributes = self.class.new.attributes.merge(body)
         changes_applied
         self.persisted = true
-        Rails.logger.error("5")
         true
       else
-        Rails.logger.error("6")
         false
       end
     end
 
     def self.owner_class
+      @owner_class_set ||= false
       return @owner_class if @owner_class_set
-      @owner_class = "SimplyAuth::#{self.owner_class_name}".constantize if self.owner_class_name
+      return nil unless self.owner_class_name
+      @owner_class = "SimplyAuth::#{self.owner_class_name}".constantize
       @owner_class_set = true
       @owner_class
     end
@@ -125,7 +125,7 @@ module SimplyAuth
         "https://api.simplyauth.com#{instance_path(ids)}",
         accept: :json
       )
-      body = JSON.parse(response.body)
+      body = JSON.parse(response.body)[model_name.element.camelize(:lower)]
       body = body.deep_transform_keys { |key| key.to_s.underscore }
       new(body).tap do |r|
         r.persisted = true

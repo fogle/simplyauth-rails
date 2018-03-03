@@ -8,7 +8,7 @@ module SimplyAuth
       @session = SimplyAuth::Session.new(session_params)
       if @session.save
         session[:simply_auth_session_id] = @session.id
-        redirect_to main_app.root_path
+        redirect_to "/"
       else
         render :new
       end
@@ -17,7 +17,7 @@ module SimplyAuth
     def destroy
       current_session.destroy
       session.destroy
-      redirect_to main_app.root_path
+      redirect_to "/"
     end
 
     private

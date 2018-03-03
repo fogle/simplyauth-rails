@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    simply_auth (0.3.0)
+    simply_auth (0.3.1)
       http_signatures
       rails (~> 5.1)
       rest-client

@@ -23,10 +23,14 @@ module SimplyAuth
       assert_equal "a@bee.com", found.email
       assert_nil found.password # password has been encrypted irreversibly
 
+      duplicate = User.new(user_pool_id: pool.id, email: user.email, password: "balderdash")
+      duplicate.save
+
       found.name = "bill"
       found.email = "c@bee.com"
       found.data.something = "a value" #store anything you want on data, as long as it's a string
       assert_equal true, found.save
+
 
       found = User.find([pool.id, user.id])
       assert_equal "bill", found.name

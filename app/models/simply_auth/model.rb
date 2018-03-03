@@ -63,6 +63,14 @@ module SimplyAuth
       else
         false
       end
+    rescue RestClient::UnprocessableEntity => e
+      errors = JSON.parse(e.http_body)["errors"]
+      errors.each do |k, v|
+        v.each do |err|
+          self.errors.add(k, err)
+        end
+      end
+      false
     end
 
     def self.owner_class

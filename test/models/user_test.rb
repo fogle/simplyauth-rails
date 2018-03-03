@@ -26,7 +26,7 @@ module SimplyAuth
       found.name = "bill"
       found.email = "c@bee.com"
       found.data.something = "a value" #store anything you want on data, as long as it's a string
-      assert_equal(true, found.save)
+      assert_equal true, found.save
 
       found = User.find([pool.id, user.id])
       assert_equal "bill", found.name

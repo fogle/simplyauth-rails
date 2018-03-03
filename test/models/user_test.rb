@@ -24,7 +24,8 @@ module SimplyAuth
       assert_nil found.password # password has been encrypted irreversibly
 
       duplicate = User.new(user_pool_id: pool.id, email: user.email, password: "balderdash")
-      duplicate.save
+      assert_equal false, duplicate.save
+      assert_equal ["Email is taken"], duplicate.errors.full_messages
 
       found.name = "bill"
       found.email = "c@bee.com"

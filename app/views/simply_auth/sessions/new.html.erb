@@ -1,11 +1,58 @@
-<%= form_for @session, url: :session do |f| %>
-  <div class='form-group'>
-    <%= f.label :email, "Email *" %>
-    <%= f.text_field :email, class: "form-control" %>
+<div class='container'>
+  <div class='d-flex flex-row'>
+    <h2 class='mr-auto'>Log In</h2>
+    <div>
+      <span class='mr-2'>Not a member?</span>
+      <%= link_to "Sign Up", new_registration_path, class: "btn btn-secondary" %>
+    </div>
   </div>
-  <div class='form-group'>
-    <%= f.label :password, "Password *" %>
-    <%= f.password_field :password, class: "form-control"%>
-  </div>
-  <%= f.submit "Log In", class: "btn btn-primary"%>
-<% end %>
+  <%= form_for @session, url: :session, html: {class: "needs-validation", novalidate: true}  do |f| %>
+    <div class='form-group'>
+      <%= f.label :email, "Email" %>
+      <%= f.text_field :email, class: "form-control #{"is-invalid" if @session.errors[:email].any? }", required: true, type: :email %>
+      <div class='invalid-feedback'>
+        <% if @session.errors[:email].any? %>
+          <%= @session.errors[:email].map{|m| "Email #{m}."}.join(" ") %>
+        <% else %>
+          Please provide your email.
+        <% end %>
+      </div>
+    </div>
+    <div class='form-group'>
+      <%= f.label :password, "Password" %>
+      <%= f.password_field :password, class: "form-control #{"is-invalid" if @session.errors[:password].any? }", required: true %>
+      <div class='invalid-feedback'>
+        <% if @session.errors[:password].any? %>
+          <%= @session.errors[:password].map{|m| "Password #{m}."}.join(" ") %>
+        <% else %>
+          Please provide your password.
+        <% end %>
+      </div>
+    </div>
+    <%= f.submit "Log In", class: "btn btn-primary"%>
+  <% end %>
+
+  <script>
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+  </script>
+  <style>
+    .field_with_errors ~ .invalid-feedback,
+    .field_with_errors ~ .invalid-tooltip {
+      display: block;
+    }
+  </style>
+</div>

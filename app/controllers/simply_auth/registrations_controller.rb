@@ -4,6 +4,11 @@ module SimplyAuth
       @user = SimplyAuth::User.new
     end
 
+    def index
+      #handle refresh on validation error
+      redirect_to new_registration_path
+    end
+
     def after_registration(user); end
 
     def create

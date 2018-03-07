@@ -32,7 +32,7 @@ module SimplyAuth
     end
 
     def permit_session_params
-      params.permit(:session => [:email, :password])[:session]
+      params.permit(:session => :email)[:session]
     end
   end
 end

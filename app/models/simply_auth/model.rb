@@ -40,6 +40,7 @@ module SimplyAuth
 
     def save
       if valid?
+        attributes = self.attributes.deep_transform_keys{|k| k.to_s.camelize(:lower)}
         # Rails.logger.error([
         #   persisted? ? :patch : :post,
         #   "https://api.simplyauth.com#{persisted? ? instance_path : collection_path}",
@@ -55,8 +56,8 @@ module SimplyAuth
           content_type: :json
         )
         body = JSON.parse(response.body)[model_name.element.camelize(:lower)]
-        body = body.deep_transform_keys { |key| key.to_s.underscore }
-        self.attributes = self.class.new.attributes.merge(body)
+        body = body.deep_transform_keys { |key| key.to_s.underscore } if body
+        self.attributes = self.class.new.attributes.merge(body || {})
         changes_applied
         self.persisted = true
         true

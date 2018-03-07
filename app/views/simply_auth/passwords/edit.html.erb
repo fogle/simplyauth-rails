@@ -1,36 +1,25 @@
 <div class='container'>
   <div class='d-flex flex-row'>
-    <h2 class='mr-auto'>Log In</h2>
+    <h2 class='mr-auto'>Reset Password</h2>
     <div>
       <span class='mr-2'>Not a member?</span>
       <%= link_to "Sign Up", new_registration_path, class: "btn btn-secondary" %>
     </div>
   </div>
-  <%= form_for @session, url: :session, html: {class: "needs-validation", novalidate: true}  do |f| %>
-    <div class='form-group'>
-      <%= f.label :email, "Email" %>
-      <%= f.text_field :email, class: "form-control #{"is-invalid" if @session.errors[:email].any? }", required: true, type: :email %>
-      <div class='invalid-feedback'>
-        <% if @session.errors[:email].any? %>
-          <%= @session.errors[:email].map{|m| "Email #{m}."}.join(" ") %>
-        <% else %>
-          Please provide your email.
-        <% end %>
-      </div>
-    </div>
+  <%= form_for @password_reset, url: :password, method: :patch, html: {class: "needs-validation", novalidate: true}  do |f| %>
+    <%= f.hidden_field :reset_password_token_id %>
     <div class='form-group'>
       <%= f.label :password, "Password" %>
-      <%= f.password_field :password, class: "form-control #{"is-invalid" if @session.errors[:password].any? }", required: true %>
+      <%= f.password_field :password, class: "form-control #{"is-invalid" if @password_reset.errors[:password].any? }", required: true %>
       <div class='invalid-feedback'>
-        <% if @session.errors[:password].any? %>
-          <%= @session.errors[:password].map{|m| "Password #{m}."}.join(" ") %>
+        <% if @password_reset.errors[:password].any? %>
+          <%= @password_reset.errors[:password].map{|m| "Password #{m}."}.join(" ") %>
         <% else %>
-          Please provide your password.
+          Please choose a new password.
         <% end %>
       </div>
     </div>
-    <%= f.submit "Log In", class: "btn btn-primary mr-3" %>
-    <%= link_to "I forgot my password", new_password_path %>
+    <%= f.submit "Reset my Password", class: "btn btn-primary mr-3" %>
   <% end %>
 
   <script>

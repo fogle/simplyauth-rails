@@ -1,6 +1,6 @@
 module SimplyAuth
   class ApplicationMailer < ActionMailer::Base
-    default from: 'from@example.com'
     layout 'mailer'
+    default from: ::ApplicationMailer.default[:from]
   end
 end

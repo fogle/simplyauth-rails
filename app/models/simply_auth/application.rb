@@ -1,17 +1,13 @@
 module SimplyAuth
-  class UserPool < Model
+  class Application < Model
     validates :name, presence: true
     attr_accessor :name
     def attributes
       super.merge(name: name)
     end
 
-    def self.instance_path(ids = [])
-      if ids.empty?
-        super([SimplyAuth::Config.user_pool_id])
-      else
-        super(ids)
-      end
+    def signup_forms
+      @signup_forms ||= SignupForm.all(id)
     end
 
     def self.all
@@ -22,12 +18,8 @@ module SimplyAuth
       body = JSON.parse(response.body)[model_name.element.pluralize.camelize(:lower)]
       body.map do |data|
         data = data.deep_transform_keys { |key| key.to_s.underscore }
-        new(data)
+        new(data).tap{|a| a.persisted = true}
       end
-    end
-
-    def users
-      @users ||= User.all(id)
     end
   end
 end

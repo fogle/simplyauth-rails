@@ -1,23 +1,18 @@
 module SimplyAuth
-  class User < Model
-    attr_accessor :name, :email, :password, :user_pool_id
-    validates :email, format: /[^@]+@[^@]+/
-    validates :password, length: 6..72, if: :password_or_new_record?
-
-    def password_or_new_record?
-      password || !persisted?
-    end
+  class SignupForm < Model
+    attr_accessor :name, :steps, :application_id
+    validates :name, :application_id, presence: true
 
     def attributes
-      super.merge(name: name, email: email, password: password)
+      super.merge(name: name, steps: steps)
     end
 
     def owner_id
-      self.user_pool_id
+      self.application_id
     end
 
     def self.owner_class_name
-      "UserPool"
+      "Application"
     end
 
     def destroy

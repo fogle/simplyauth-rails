@@ -1,9 +1,9 @@
 module SimplyAuth
   class UserPool < Model
     validates :name, presence: true
-    attr_accessor :name
+    attr_accessor :name, :application_id
     def attributes
-      super.merge(name: name)
+      super.merge(name: name, application_id: application_id)
     end
 
     def self.instance_path(ids = [])

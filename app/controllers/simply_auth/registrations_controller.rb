@@ -63,6 +63,7 @@ module SimplyAuth
       @signup_form = params[:form] ? forms.find{|f| f.id == params[:form]} : forms.first
       session["simply_auth_form_submission"] ||= {}
       session["simply_auth_form_submission"]["attributes"] ||= {}
+      session["simply_auth_form_submission"]["attributes"]["data"] ||= {}
       @step = @signup_form.steps.find do |s|
         s["attributes"].any? do |attribute|
           if attribute.starts_with?("data.")

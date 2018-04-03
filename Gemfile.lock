@@ -1,10 +1,10 @@
 PATH
   remote: .
   specs:
-    simply_auth (0.7.2)
-      http_signatures
+    simply_auth (0.7.3)
+      http_signatures (~> 1.0, >= 1.0.4)
       rails (~> 5.1)
-      rest-client
+      rest-client (~> 2)
 
 GEM
   remote: https://rubygems.org/
